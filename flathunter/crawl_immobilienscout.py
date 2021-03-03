@@ -1,5 +1,9 @@
 import logging, requests, re
 from bs4 import BeautifulSoup
+import time
+
+
+HEADERS = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:85.0) Gecko/20100101 Firefox/85.0"}
 
 
 class CrawlImmobilienscout:
@@ -24,7 +28,7 @@ class CrawlImmobilienscout:
         # load first page to get number of entries
         page_no = 1
         soup = self.get_page(search_url, page_no)
-        no_of_results = 300
+        no_of_results = 20
         try:
             no_of_results = int(
                 soup.find_all(lambda e: e.has_attr("data-is24-qa") and e["data-is24-qa"] == "resultlist-resultCount")[
@@ -41,7 +45,9 @@ class CrawlImmobilienscout:
             self.__log__.debug(
                 "Next Page, Number of entries : " + str(len(entries)) + "no of resulst: " + str(no_of_results)
             )
+
             page_no += 1
+            time.sleep(2.5)
             soup = self.get_page(search_url, page_no)
             cur_entry = self.extract_data(soup)
             if cur_entry == []:
@@ -51,7 +57,8 @@ class CrawlImmobilienscout:
         return entries
 
     def get_page(self, search_url, page_no):
-        resp = requests.get(search_url.format(page_no))
+        print(search_url.format(page_no))
+        resp = requests.get(search_url.format(page_no), headers=HEADERS)
         if resp.status_code != 200:
             self.__log__.error("Got response (%i): %s" % (resp.status_code, resp.content))
         return BeautifulSoup(resp.content, "html.parser")

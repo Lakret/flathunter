@@ -80,6 +80,7 @@ def main():
     config_handle = args.config
     __log__.info("Using config %s" % config_handle.name)
     config = yaml.load(config_handle.read(), Loader=yaml.FullLoader)
+    __log__.info(config)
 
     # check config
     if not config.get("telegram", dict()).get("bot_token"):
